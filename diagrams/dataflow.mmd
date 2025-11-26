@@ -1,0 +1,48 @@
+```mermaid
+graph LR
+    subgraph Ingress["Ingress Traffic"]
+        Internet[Internet]
+        VPN[VPN Users]
+        Branch[Branch Sites]
+    end
+
+    subgraph Chain["Service Chain"]
+        FW[Firewall]
+        IDS[IDS/IPS]
+        DPI[DPI]
+        LB[Load Balancer]
+    end
+
+    subgraph Egress["Egress Traffic"]
+        NAT[NAT Gateway]
+        Proxy[Web Proxy]
+    end
+
+    subgraph Apps["Applications"]
+        Web[Web Tier]
+        API[API Tier]
+        DB[Database]
+    end
+
+    subgraph Mgmt["Management"]
+        Orchestrator[NFV Orchestrator]
+        Monitor[Monitoring]
+        Policy[Policy Engine]
+    end
+
+    Internet --> FW
+    VPN --> FW
+    Branch --> FW
+    FW --> IDS
+    IDS --> DPI
+    DPI --> LB
+    LB --> Web
+    LB --> API
+    API --> DB
+    Web --> NAT
+    API --> Proxy
+    Orchestrator --> Chain
+    Monitor --> Chain
+    Policy --> FW
+    Policy --> IDS
+```

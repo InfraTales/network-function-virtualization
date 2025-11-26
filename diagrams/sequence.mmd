@@ -1,0 +1,32 @@
+```mermaid
+sequenceDiagram
+    participant Client as Client
+    participant GWLB as Gateway LB
+    participant FW as Firewall VNF
+    participant IDS as IDS VNF
+    participant LB as Load Balancer
+    participant App as Application
+
+    Client->>GWLB: Incoming request
+    GWLB->>FW: Forward (GENEVE)
+    FW->>FW: Inspect & filter
+    
+    alt Traffic allowed
+        FW->>IDS: Forward to IDS
+        IDS->>IDS: Analyze for threats
+        
+        alt No threats detected
+            IDS->>LB: Forward to LB
+            LB->>App: Route to backend
+            App-->>LB: Response
+            LB-->>IDS: Return path
+            IDS-->>FW: Return path
+            FW-->>GWLB: Return (GENEVE)
+            GWLB-->>Client: Response
+        else Threat detected
+            IDS-->>Client: Block/Alert
+        end
+    else Traffic blocked
+        FW-->>Client: Connection reset
+    end
+```

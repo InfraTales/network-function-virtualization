@@ -1,0 +1,54 @@
+```mermaid
+graph TD
+    subgraph Internet["Internet"]
+        Users[External Users]
+    end
+
+    subgraph Edge["Edge Layer"]
+        IGW[Internet Gateway]
+        GWLB[Gateway Load Balancer]
+    end
+
+    subgraph VNFs["Virtual Network Functions"]
+        FW[Virtual Firewall]
+        IDS[IDS/IPS]
+        DPI[DPI Engine]
+        LB[Load Balancer VNF]
+        NAT[NAT VNF]
+    end
+
+    subgraph Orchestration["NFV Orchestration"]
+        MANO[NFV MANO]
+        Catalog[VNF Catalog]
+        Scaling[Auto-Scaling]
+    end
+
+    subgraph Apps["Application Layer"]
+        App1[Application 1]
+        App2[Application 2]
+        App3[Application 3]
+    end
+
+    subgraph Monitoring["Monitoring"]
+        CloudWatch[CloudWatch]
+        Logs[VNF Logs]
+        Alerts[Alerts]
+    end
+
+    Users --> IGW
+    IGW --> GWLB
+    GWLB --> FW
+    FW --> IDS
+    IDS --> DPI
+    DPI --> LB
+    LB --> App1
+    LB --> App2
+    LB --> App3
+    NAT --> IGW
+    MANO --> VNFs
+    Catalog --> MANO
+    Scaling --> VNFs
+    VNFs --> CloudWatch
+    CloudWatch --> Logs
+    CloudWatch --> Alerts
+```
