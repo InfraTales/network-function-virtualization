@@ -115,4 +115,4 @@ Common issues and resolutions for the **Network Function Virtualization** platfo
 - Adjust sensitivity thresholds
 - Review baseline traffic patterns
 
-> For architecture details, see `ARCHITECTURE.md`.
+> For architecture details, see the project README.
