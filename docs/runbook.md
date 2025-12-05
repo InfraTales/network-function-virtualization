@@ -1,129 +1,70 @@
-# Runbook
+# Operations Runbook
 
-Operational guide for deploying and managing the **Network Function Virtualization** platform.
+## Overview
+This runbook provides operational procedures for managing and maintaining this infrastructure.
 
-## 1. Deployment
+## Prerequisites
+- AWS CLI configured
+- Terraform/CDK/Pulumi installed
+- Appropriate IAM permissions
 
-### Prerequisites
+## Common Operations
 
-- AWS CLI configured with appropriate credentials
-- Node.js 18+ and npm installed
-- AWS CDK CLI installed
-- VNF images available in AMI or container format
-
-### Deploy Steps
-
+### Deployment
 ```bash
-# Install dependencies
-npm install
+# Development
+./scripts/deploy.sh dev
 
-# Bootstrap CDK
-cdk bootstrap
-
-# Deploy NFV infrastructure
-cdk deploy --context environment=prod
+# Production
+./scripts/deploy.sh prod
 ```
 
-## 2. VNF Deployment
+### Monitoring
+- CloudWatch Dashboard: Check AWS Console
+- Alerts: Configured via SNS
+- Logs: CloudWatch Logs
 
-### Deploy Virtual Firewall
+### Troubleshooting
 
+#### Issue: Deployment Fails
+**Symptoms**: Terraform/CDK apply fails
+**Resolution**:
+1. Check AWS credentials
+2. Verify IAM permissions
+3. Review error logs
+4. Check resource quotas
+
+#### Issue: High Costs
+**Symptoms**: Unexpected AWS charges
+**Resolution**:
+1. Review Cost Explorer
+2. Check for unused resources
+3. Verify auto-scaling policies
+4. Review instance types
+
+### Maintenance Windows
+- Preferred: Sunday 02:00-06:00 UTC
+- Avoid: Business hours (09:00-17:00 local time)
+
+### Escalation
+1. Team Lead
+2. DevOps Manager
+3. On-call Engineer
+
+## Emergency Procedures
+
+### Rollback
 ```bash
-# Deploy firewall VNF
-cdk deploy FirewallStack --context vnf=firewall
+# Terraform
+terraform apply -var-file=previous.tfvars
 
-# Configure firewall rules
-aws ec2 create-network-firewall-rule-group ...
+# CDK
+cdk deploy --previous-version
+
+# Pulumi
+pulumi stack select previous
+pulumi up
 ```
 
-### Deploy IDS/IPS
-
-```bash
-# Deploy IDS VNF
-cdk deploy IDSStack --context vnf=ids
-
-# Enable inline mode
-aws ec2 modify-traffic-mirror-session ...
-```
-
-## 3. Service Chaining
-
-### Configure Service Chain
-
-```hcl
-# Example: Internet → Firewall → IDS → Application
-resource "aws_ec2_transit_gateway_route" "chain" {
-  destination_cidr_block = "0.0.0.0/0"
-  transit_gateway_attachment_id = aws_ec2_transit_gateway_vpc_attachment.firewall.id
-  transit_gateway_route_table_id = aws_ec2_transit_gateway_route_table.main.id
-}
-```
-
-### Gateway Load Balancer Setup
-
-1. Create GWLB in VNF VPC
-2. Create GWLB endpoint in application VPC
-3. Update route tables
-4. Verify traffic flow
-
-## 4. Monitoring
-
-### Key Metrics to Watch
-
-- **VNF health**: CPU, memory, network
-- **Throughput**: Packets/bytes per second
-- **Latency**: Per-VNF processing time
-- **Drops**: Packet loss indicators
-- **Security events**: Alerts and blocks
-
-### Dashboards
-
-Pre-configured dashboards for:
-
-- VNF fleet health
-- Service chain performance
-- Security event summary
-- Capacity planning
-
-## 5. Scaling
-
-### Horizontal Scaling
-
-```bash
-# Add VNF instance to target group
-aws elbv2 register-targets \
-  --target-group-arn arn:aws:elasticloadbalancing:... \
-  --targets Id=i-xxx
-```
-
-### Auto-Scaling Configuration
-
-- Scale on CPU utilization
-- Scale on network throughput
-- Minimum instances for HA
-- Maximum for cost control
-
-## 6. Maintenance
-
-### Regular Tasks
-
-- Update VNF images monthly
-- Review security policies weekly
-- Test failover quarterly
-- Capacity review monthly
-
-### VNF Update Process
-
-1. Deploy new VNF version
-2. Add to load balancer
-3. Drain old instance
-4. Verify functionality
-5. Remove old instance
-
-### Teardown
-
-```bash
-cdk destroy --context environment=dev
-```
-
-> For troubleshooting common issues, see `docs/troubleshooting.md`.
+### Disaster Recovery
+See [DISASTER_RECOVERY.md](DISASTER_RECOVERY.md)
